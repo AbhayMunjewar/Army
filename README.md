@@ -1,4 +1,4 @@
-# 🛡️ RAKSHAK (SIH251) — Military & Defense Supply Chain Intelligence Platform
+# 🛡️ VEERSETU (SIH251) — Military & Defense Supply Chain Intelligence Platform
 
 > **Smart India Hackathon (SIH) — Problem Statement ID: SIH251**  
 > **Domain:** Defence & Security / High-Altitude Logistics Intelligence  
@@ -9,12 +9,12 @@
 
 ## 📌 Executive Summary
 
-**RAKSHAK** is a state-of-the-art, military-grade **Supply Chain Intelligence & High-Altitude Logistics Platform** developed to tackle critical supply bottlenecks faced by the Indian Armed Forces in hazardous high-altitude frontier posts (11,000 ft to 18,200 ft). 
+**VEERSETU** is a state-of-the-art, military-grade **Supply Chain Intelligence & High-Altitude Logistics Platform** developed to tackle critical supply bottlenecks faced by the Indian Armed Forces in hazardous high-altitude frontier posts (11,000 ft to 18,200 ft). 
 
-In sub-zero severe winter conditions (temperatures dropping to **-35°C**), mountain pass blockades (Khardung La, Chang La landslides/avalanches), and intermittent satellite connectivity, **RAKSHAK** ensures uninterrupted mission-critical supplies — including **Sub-Zero Kerosene Fuel (SKO)**, **MRE Combat Rations**, **5.56mm Ammunition**, and **Medical Oxygen Cylinders**.
+In sub-zero severe winter conditions (temperatures dropping to **-35°C**), mountain pass blockades (Khardung La, Chang La landslides/avalanches), and intermittent satellite connectivity, **VEERSETU** ensures uninterrupted mission-critical supplies — including **Sub-Zero Kerosene Fuel (SKO)**, **MRE Combat Rations**, **5.56mm Ammunition**, and **Medical Oxygen Cylinders**.
 
 ```
-                         🛡️ RAKSHAK ARCHITECTURE OVERVIEW
+                         🛡️ VEERSETU ARCHITECTURE OVERVIEW
                          
   ┌───────────────────────────────────────────────────────────────────────────┐
   │                           CENTRAL DEPOT HQ (LEH)                          │
@@ -76,7 +76,7 @@ In sub-zero severe winter conditions (temperatures dropping to **-35°C**), moun
 
 ## 🔒 Advanced Cybersecurity Architecture
 
-Safety, integrity, and anti-tampering are paramount for military logistics operations. RAKSHAK implements strict security standards, dividing features into **currently active implemented security in the codebase** and **production-grade Ministry of Defence (MoD) compliance specifications**.
+Safety, integrity, and anti-tampering are paramount for military logistics operations. **VEERSETU** implements strict security standards, dividing features into **currently active implemented security in the codebase** and **production-grade Ministry of Defence (MoD) compliance specifications**.
 
 ### 🟢 Implemented Security Features (Active in Codebase)
 
@@ -155,20 +155,13 @@ Evaluated on **19,160 historical daily log records** merged with **24 years of O
 | **Styling System** | CSS Architecture | **Vanilla CSS Variables** (Dark Theme `#0B1017`, Glassmorphic Cards) |
 | **Mapping & GIS** | Satellite Tiles & Nodes | **Leaflet 1.9.4** + **React-Leaflet 5.0.0** (Esri World Imagery) |
 | **Iconography** | Vector Icons | **Lucide React 1.51** |
-| **Algorithmic Engine** | Graph Solver | **Custom Dijkstra Shortest Path Solver** (JavaScript) |
+| **Algorithmic Engine** | Graph Solver | **Custom Dijkstra Shortest Path Solver** (Python & JS) |
 | **Machine Learning** | AI Predictor | **XGBoost Regressor** / **Scikit-Learn GradientBoosting** (98.42% R²) |
 | **PWA & Offline** | Web Worker & Caching | **Custom Service Worker** + **IndexedDB / CRDTs** |
-| **Linter & Quality** | Static Analysis | **OxLint 1.81** (Rust-based linter) |
+| **Backend & REST API** | Python Web Framework | **Django 4.2** + **Django REST Framework** + **Gunicorn** |
+| **Cloud Deployment** | Hosting Platforms | **Vercel** (Frontend SPA) + **Render** (Python Backend API) |
 
 ---
-
-## 💻 Installation & Quick Start
-
-### Prerequisites
-- **Node.js** (v18.0.0 or higher)
-- **npm** (v9.0.0 or higher)
-
-### Steps
 
 ## 💻 Installation & Quick Start
 
@@ -267,6 +260,8 @@ Army/
 ├── rakshak_master_model.joblib     # Pre-Trained XGBoost ML Pipeline
 ├── train_rakshak_model.py          # Master ML Training & Evaluation Script
 ├── requirements.txt                # Python Backend & ML Package Dependencies
+├── vercel.json                     # Vercel Deployment SPA Routing Config
+├── render.yaml                     # Render Blueprint Deployment Config
 ├── package.json                    # Node dependencies & NPM scripts
 ├── index.html                      # HTML5 Root Template with PWA Meta
 ├── vite.config.js                  # Vite Dev Server Configuration
@@ -278,12 +273,11 @@ Army/
 ## 🏅 SIH Problem Statement Compliance Summary
 
 - **Problem Statement ID**: `SIH251`
-- **Solution Name**: `RAKSHAK`
+- **Solution Name**: `VEERSETU`
 - **Zero-Latency Demonstration**: Embedded Dijkstra graph solver & ML burn forecaster for instant offline evaluation during hackathon judging.
 - **High Altitude Optimization**: Built specifically for severe weather scenarios in Leh, Ladakh, and Northern Border sectors.
 
 ---
 
-> 🇮🇳 **RAKSHAK — Stronger Logistics, Safer Tomorrow.**  
+> 🇮🇳 **VEERSETU — Stronger Logistics, Safer Tomorrow.**  
 > *Developed for Smart India Hackathon (SIH).*
-
