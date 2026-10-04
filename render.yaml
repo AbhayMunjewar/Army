@@ -4,10 +4,12 @@ services:
     env: python
     rootDir: .
     buildCommand: "pip install -r requirements.txt && python backend/manage.py collectstatic --noinput && python backend/manage.py migrate"
-    startCommand: "gunicorn backend.rakshak_backend.wsgi:application --bind 0.0.0.0:$PORT"
+    startCommand: "gunicorn --pythonpath backend rakshak_backend.wsgi:application --bind 0.0.0.0:$PORT"
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.8
+      - key: PYTHONPATH
+        value: backend
       - key: SECRET_KEY
         generateValue: true
       - key: DEBUG
