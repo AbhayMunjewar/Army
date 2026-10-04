@@ -1,0 +1,711 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700;800&display=swap');
+
+:root {
+  /* Exact SIH251 Reference Specification Color Palette */
+  --color-navy: #0B1F33;
+  --color-army-green: #3F5135;
+  --color-olive-green: #667A45;
+  --color-off-white: #F2F4EF;
+  --color-charcoal: #FFFFFF;
+  --color-amber: #D6A23A;
+  --color-red: #C0392B;
+
+  /* Derived UI Theme Tokens (Light Theme) */
+  --bg-primary: #F2F4EF;
+  --bg-secondary: #E8EBE4;
+  --bg-card: #FFFFFF;
+  --bg-card-hover: #F5F7F2;
+  --bg-input: #F0F2ED;
+
+  --border-color: rgba(63, 81, 53, 0.25);
+  --border-glow: rgba(214, 162, 58, 0.35);
+
+  --text-primary: #1B2026;
+  --text-secondary: #4A5A3F;
+  --text-muted: #6C7A63;
+
+  --status-critical: #C0392B;
+  --status-critical-bg: rgba(192, 57, 43, 0.12);
+  --status-critical-border: rgba(192, 57, 43, 0.45);
+
+  --status-warning: #C8960E;
+  --status-warning-bg: rgba(200, 150, 14, 0.12);
+  --status-warning-border: rgba(200, 150, 14, 0.4);
+
+  --status-healthy: #2D7A3A;
+  --status-healthy-bg: rgba(45, 122, 58, 0.1);
+  --status-healthy-border: rgba(45, 122, 58, 0.35);
+
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-army-green);
+  border-radius: 4px;
+  border: 1px solid var(--color-olive-green);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-amber);
+}
+
+/* App Layout */
+.app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: var(--bg-primary);
+}
+
+.main-content-layout {
+  display: flex;
+  flex: 1;
+  background: var(--bg-primary);
+}
+
+.dashboard-viewport {
+  flex: 1;
+  padding: 1.5rem;
+  overflow-y: auto;
+  max-width: 1600px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* Header Navbar - SIH251 Official Military Theme */
+.app-header {
+  height: 76px;
+  background: linear-gradient(180deg, #0B1F33 0%, #071626 100%);
+  border-bottom: 2px solid var(--color-army-green);
+  display: flex;
+  align-items: center;
+  justify: space-between;
+  padding: 0 1.75rem;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6);
+}
+
+.brand-section {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.brand-logo-icon {
+  width: 44px;
+  height: 44px;
+  background: #081F33;
+  border: 2px solid var(--color-amber);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify: center;
+  color: var(--color-off-white);
+  box-shadow: 0 0 14px rgba(214, 162, 58, 0.4);
+}
+
+.brand-title {
+  font-size: 1.3rem;
+  font-weight: 900;
+  letter-spacing: 1px;
+  color: var(--color-off-white);
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.brand-tag {
+  font-size: 0.65rem;
+  padding: 0.2rem 0.55rem;
+  background: var(--color-army-green);
+  border: 1px solid var(--color-amber);
+  color: #FFF099;
+  border-radius: 4px;
+  font-family: var(--font-mono);
+  letter-spacing: 1px;
+  font-weight: 800;
+}
+
+.role-switcher-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #081726;
+  padding: 0.35rem;
+  border-radius: 8px;
+  border: 1px solid var(--color-olive-green);
+}
+
+.role-btn {
+  padding: 0.5rem 1rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  transition: all 0.2s ease;
+}
+
+.role-btn:hover {
+  color: var(--color-off-white);
+  background: rgba(102, 122, 69, 0.25);
+}
+
+.role-btn.active {
+  background: var(--color-army-green);
+  color: #FFF099;
+  font-weight: 800;
+  border: 1px solid var(--color-amber);
+  box-shadow: 0 0 10px rgba(214, 162, 58, 0.35);
+}
+
+.header-status-controls {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.search-bar-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #081726;
+  border: 1px solid var(--color-olive-green);
+  padding: 0.45rem 0.9rem;
+  border-radius: 6px;
+  min-width: 260px;
+}
+
+.search-bar-header input {
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--color-off-white);
+  font-size: 0.82rem;
+  width: 100%;
+}
+
+.offline-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 0.9rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-family: var(--font-mono);
+  cursor: pointer;
+  transition: all 0.2s;
+  border: 1px solid var(--color-olive-green);
+  font-weight: 700;
+}
+
+.offline-toggle.online {
+  background: var(--status-healthy-bg);
+  color: #FFF099;
+  border-color: var(--color-amber);
+}
+
+.offline-toggle.offline {
+  background: var(--status-warning-bg);
+  color: var(--color-amber);
+  border-color: var(--color-amber);
+  animation: pulse-border 2s infinite;
+}
+
+/* Sidebar Navigation - Deep Navy / SIH251 Theme */
+.app-sidebar {
+  width: 265px;
+  background: linear-gradient(180deg, #0B1F33 0%, #071420 100%);
+  border-right: 2px solid var(--color-army-green);
+  padding: 1.25rem 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.sidebar-label {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 1.8px;
+  color: var(--color-amber);
+  padding: 0.6rem 0.75rem;
+  font-weight: 800;
+  border-bottom: 1px solid rgba(102, 122, 69, 0.3);
+  margin-bottom: 0.4rem;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  justify: space-between;
+  padding: 0.75rem 0.9rem;
+  color: #A3B899;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+}
+
+.nav-item:hover {
+  color: var(--color-off-white);
+  background: rgba(63, 81, 53, 0.3);
+  border-color: var(--color-olive-green);
+}
+
+.nav-item.active {
+  color: #FFF099;
+  background: var(--color-army-green);
+  border: 1px solid var(--color-amber);
+  font-weight: 800;
+  box-shadow: 0 0 12px rgba(214, 162, 58, 0.3);
+}
+
+.nav-item-left {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.nav-badge {
+  font-size: 0.68rem;
+  font-family: var(--font-mono);
+  padding: 0.15rem 0.5rem;
+  border-radius: 10px;
+  font-weight: 800;
+}
+
+.nav-badge.critical {
+  background: var(--status-critical-bg);
+  color: #ff7878;
+  border: 1px solid var(--status-critical-border);
+}
+
+.nav-badge.warning {
+  background: var(--status-warning-bg);
+  color: var(--color-amber);
+  border: 1px solid var(--status-warning-border);
+}
+
+.user-profile-card {
+  margin-top: auto;
+  background: #0B1F33;
+  border: 1px solid var(--color-olive-green);
+  padding: 0.85rem;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.user-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: var(--color-army-green);
+  border: 2px solid var(--color-amber);
+  display: flex;
+  align-items: center;
+  justify: center;
+  font-weight: 800;
+  color: var(--color-off-white);
+  font-size: 0.9rem;
+}
+
+/* Glassmorphism / Charcoal Cards */
+.glass-card {
+  background: var(--bg-card);
+  border: 1.5px solid var(--border-color);
+  border-radius: 10px;
+  padding: 1.35rem;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.glass-card:hover {
+  border-color: var(--color-amber);
+  box-shadow: 0 6px 20px rgba(63, 81, 53, 0.12);
+}
+
+/* Status Badges */
+.badge-status {
+  padding: 0.25rem 0.65rem;
+  border-radius: 20px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  font-family: var(--font-mono);
+  letter-spacing: 0.5px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.badge-status.critical {
+  background: var(--status-critical-bg);
+  color: var(--status-critical);
+  border: 1px solid var(--status-critical-border);
+}
+
+.badge-status.warning {
+  background: var(--status-warning-bg);
+  color: var(--status-warning);
+  border: 1px solid var(--status-warning-border);
+}
+
+.badge-status.healthy {
+  background: var(--status-healthy-bg);
+  color: var(--status-healthy);
+  border: 1px solid var(--status-healthy-border);
+}
+
+/* KPI Summary Cards matching Section 2 of reference image */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.kpi-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: var(--bg-card);
+  border: 1.5px solid var(--border-color);
+}
+
+.kpi-icon-box {
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify: center;
+  background: rgba(63, 81, 53, 0.12);
+  border: 1px solid var(--color-amber);
+  color: var(--color-army-green);
+}
+
+.kpi-icon-box.red {
+  background: var(--status-critical-bg);
+  border-color: var(--status-critical-border);
+  color: var(--status-critical);
+}
+
+.kpi-icon-box.yellow {
+  background: var(--status-warning-bg);
+  border-color: var(--status-warning-border);
+  color: var(--status-warning);
+}
+
+.kpi-icon-box.green {
+  background: var(--status-healthy-bg);
+  border-color: var(--status-healthy-border);
+  color: var(--status-healthy);
+}
+
+.kpi-value {
+  font-size: 1.7rem;
+  font-weight: 900;
+  font-family: var(--font-mono);
+  line-height: 1.1;
+}
+
+.kpi-title {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  margin-top: 0.2rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 700;
+}
+
+/* Dark Green Satellite Tactical Map Container */
+.tactical-map-container {
+  width: 100%;
+  height: 440px;
+  background-color: #081726;
+  background-image: url('/military_map_bg.png');
+  background-size: cover;
+  background-position: center;
+  border-radius: 10px;
+  position: relative;
+  overflow: hidden;
+  border: 2px solid var(--color-army-green);
+}
+
+.tactical-map-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(rgba(102, 122, 69, 0.3) 1px, transparent 1px),
+    linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  background-size: 20px 20px, 50px 50px, 50px 50px;
+  pointer-events: none;
+}
+
+/* Map Left Control Panel */
+.map-left-panel {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  width: 210px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--color-amber);
+  border-radius: 8px;
+  padding: 0.75rem;
+  z-index: 30;
+  font-size: 0.75rem;
+  color: var(--text-primary);
+}
+
+.map-post-marker {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: transform 0.2s;
+  z-index: 10;
+}
+
+.map-post-marker:hover {
+  transform: translate(-50%, -50%) scale(1.2);
+  z-index: 20;
+}
+
+.marker-dot {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid #ffffff;
+  box-shadow: 0 0 12px currentColor;
+  position: relative;
+}
+
+.marker-dot::after {
+  content: '';
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  border: 1px solid currentColor;
+  animation: ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+.marker-label {
+  font-size: 0.65rem;
+  font-family: var(--font-mono);
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid var(--color-amber);
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+  margin-top: 0.25rem;
+  white-space: nowrap;
+  color: var(--text-primary);
+  font-weight: 700;
+}
+
+/* Animations */
+@keyframes ping {
+  75%, 100% {
+    transform: scale(2);
+    opacity: 0;
+  }
+}
+
+@keyframes pulse-border {
+  0%, 100% {
+    border-color: rgba(214, 162, 58, 0.5);
+  }
+  50% {
+    border-color: rgba(214, 162, 58, 1);
+    box-shadow: 0 0 14px rgba(214, 162, 58, 0.6);
+  }
+}
+
+/* Form Controls & Buttons */
+.btn-primary {
+  background: linear-gradient(135deg, #3F5135 0%, #263620 100%);
+  color: var(--color-off-white);
+  font-weight: 800;
+  font-size: 0.85rem;
+  padding: 0.65rem 1.35rem;
+  border: 1px solid var(--color-amber);
+  border-radius: 6px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 10px rgba(214, 162, 58, 0.25);
+}
+
+.btn-primary:hover {
+  background: var(--color-olive-green);
+  border-color: #FFF099;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(214, 162, 58, 0.4);
+}
+
+.btn-secondary {
+  background: #E8EBE4;
+  color: var(--text-primary);
+  font-weight: 700;
+  font-size: 0.85rem;
+  padding: 0.65rem 1.35rem;
+  border: 1px solid var(--color-olive-green);
+  border-radius: 6px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.2s ease;
+}
+
+.btn-secondary:hover {
+  background: rgba(63, 81, 53, 0.15);
+  border-color: var(--color-amber);
+}
+
+.btn-danger {
+  background: var(--status-critical-bg);
+  color: var(--status-critical);
+  border: 1px solid var(--status-critical-border);
+  font-weight: 800;
+  padding: 0.65rem 1.35rem;
+  border-radius: 6px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Table Design */
+.tactical-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.tactical-table th {
+  text-align: left;
+  padding: 0.85rem 1rem;
+  color: var(--color-army-green);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border-bottom: 2px solid var(--color-army-green);
+  font-family: var(--font-mono);
+  background: #E8EBE4;
+  font-weight: 800;
+}
+
+.tactical-table td {
+  padding: 0.9rem 1rem;
+  border-bottom: 1px solid rgba(63, 81, 53, 0.15);
+}
+
+.tactical-table tr:hover td {
+  background: rgba(63, 81, 53, 0.08);
+}
+
+/* Progress bar */
+.progress-bar-container {
+  height: 9px;
+  background: #E8EBE4;
+  border: 1px solid rgba(102, 122, 69, 0.3);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.4s ease;
+}
+
+.progress-bar-fill.red {
+  background: var(--status-critical);
+}
+
+.progress-bar-fill.yellow {
+  background: var(--color-amber);
+}
+
+.progress-bar-fill.green {
+  background: var(--color-army-green);
+}
+
+.progress-bar-fill.cyan {
+  background: var(--color-olive-green);
+}
+
+/* Light Green Military Topographic OpenStreetMap Filter */
+.light-green-leaflet-map .leaflet-tile-pane {
+  filter: sepia(35%) hue-rotate(75deg) saturate(1.4) brightness(0.96) contrast(1.08);
+}
+
+.light-green-satellite-map .leaflet-tile-pane {
+  filter: sepia(25%) hue-rotate(65deg) saturate(1.3) brightness(0.92) contrast(1.1);
+}
+
+.leaflet-container {
+  width: 100%;
+  height: 100%;
+  border-radius: 10px;
+  background: #d4e0d2 !important;
+}
+
+.leaflet-popup-content-wrapper {
+  background: #FFFFFF !important;
+  color: #1B2026 !important;
+  border: 2px solid #D6A23A;
+  border-radius: 8px !important;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15) !important;
+}
+
+.leaflet-popup-tip {
+  background: #FFFFFF !important;
+}
+
+.custom-post-div-icon {
+  background: transparent;
+  border: none;
+}

@@ -1,0 +1,46 @@
+{
+  "name": "RAKSHAK — Indian Army Predictive Supply Chain & Logistics",
+  "short_name": "RAKSHAK-PWA",
+  "description": "High-Altitude Tactical Logistics & Dynamic Route Optimization Platform for Forward Outposts, Ministry of Defence / Indian Army.",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0B1F33",
+  "theme_color": "#0B1F33",
+  "icons": [
+    {
+      "src": "/sih251_eagle_logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/sih251_eagle_logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/sih251_eagle_logo.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Depot Officer Portal",
+      "url": "/?role=DEPOT_OFFICER",
+      "description": "Access Leh Central Depot Terminal"
+    },
+    {
+      "name": "Post Commander Portal",
+      "url": "/?role=POST_COMMANDER",
+      "description": "Access Border Post Stock Monitor"
+    },
+    {
+      "name": "Convoy Leader HUD",
+      "url": "/?role=CONVOY_LEADER",
+      "description": "Access Convoy Checkpoint Scan HUD"
+    }
+  ]
+}
