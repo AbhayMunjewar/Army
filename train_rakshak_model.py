@@ -35,7 +35,7 @@ print("🛡️  RAKSHAK-LOGISTICS MASTER ALL-IN-ONE ML PIPELINE")
 print("================================================================================")
 
 # 1. LOAD & PREPROCESS REAL WEATHER DATASET
-weather_path = "d:/Army/open-meteo-34.13N77.61E3414m.csv"
+weather_path = "open-meteo-34.13N77.61E3414m.csv"
 print(f"🌤️  1. Loading Real Weather Dataset from: {weather_path}")
 
 # Load weather raw and dynamically locate header row containing 'time'
@@ -61,7 +61,7 @@ daily_weather.columns = ['Date', 'Avg_Temp_C', 'Min_Apparent_Temp_C', 'Total_Sno
 print(f"   Aggregated {len(daily_weather):,} daily weather records (Temperature, Wind-Chill, Snowfall).\n")
 
 # 2. LOAD OUTPOST INVENTORY LOGS DATASET
-logs_path = "d:/Army/army_outpost_inventory_logs.csv"
+logs_path = "army_outpost_inventory_logs.csv"
 print(f"📦 2. Loading Outpost Daily Inventory Logs from: {logs_path}")
 df_logs = pd.read_csv(logs_path)
 print(f"   Loaded {len(df_logs):,} outpost log entries.\n")
@@ -165,7 +165,7 @@ print(summary_df.to_string(index=False))
 print("==============================================================================%%\n")
 
 # Save Models to Joblib
-model_path = "d:/Army/rakshak_master_model.joblib"
+model_path = "rakshak_master_model.joblib"
 joblib.dump(trained_models, model_path)
 print(f"💾 Master AI Models saved to: {model_path}\n")
 

@@ -2,8 +2,11 @@ import os
 import joblib
 import pandas as pd
 import numpy as np
+from pathlib import Path
 
-MODEL_PATH = "d:/Army/rakshak_master_model.joblib"
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
+MODEL_PATH = os.environ.get("MODEL_PATH", str(BASE_DIR / "rakshak_master_model.joblib"))
+
 
 class RakshakMLEngine:
     _models = None
