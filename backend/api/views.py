@@ -231,10 +231,11 @@ def qr_verify_view(request):
     post_id = data.get('post_id')
 
     # Construct QR Payload
-    raw_payload = f"RAKSHAK|{convoy_id}|{checkpoint_name}|{scan_type}|{timezone.now().timestamp()}"
+    raw_payload = f"VEERSETU|{convoy_id}|{checkpoint_name}|{scan_type}|{timezone.now().timestamp()}"
     signature = sign_qr_payload(raw_payload)
     is_valid = verify_qr_signature(raw_payload, signature)
     encrypted_payload = encrypt_payload({"raw": raw_payload, "signature": signature})
+
 
     scan_record = CheckpointScan.objects.create(
         scan_id=f"SCAN-{uuid.uuid4().hex[:8].upper()}",
@@ -295,7 +296,7 @@ def audit_logs_view(request):
     logs = AuditLog.objects.all().order_by('-log_id')[:50]
     serializer = AuditLogSerializer(logs, many=True)
     return Response({
-        "system": "RAKSHAK Military Audit Trail",
+        "system": "VEERSETU Military Audit Trail",
         "hash_algorithm": "SHA-256 Hash Chain",
         "logs_count": len(logs),
         "audit_trail": serializer.data
@@ -307,7 +308,7 @@ def audit_logs_view(request):
 def system_status_view(request):
     """GET /api/status/ - Health check and military security overview."""
     return Response({
-        "system": "RAKSHAK-LOGISTICS Django Backend API",
+        "system": "VEERSETU-LOGISTICS Django Backend API",
         "organization": "Indian Army / Ministry of Defence",
         "version": "1.0.0-DEFENCE",
         "status": "ONLINE_OPERATIONAL",
@@ -318,3 +319,4 @@ def system_status_view(request):
         "pending_indents": RequisitionIndent.objects.filter(status='PENDING').count(),
         "timestamp": timezone.now().isoformat()
     }, status=status.HTTP_200_OK)
+
