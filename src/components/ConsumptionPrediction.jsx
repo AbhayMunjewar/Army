@@ -7,6 +7,7 @@ export default function ConsumptionPrediction({ posts = [], onNavigateToRisk }) 
   const [simTroops, setSimTroops] = useState(48);
   const [readiness, setReadiness] = useState('HIGH');
   const [weatherCondition, setWeatherCondition] = useState('BLIZZARD');
+  const [forecastCommodity, setForecastCommodity] = useState('CRITICAL');
 
   const post = posts.find(p => p.id === selectedPostId) || posts[0] || {};
   const postStock = post.stock || {};
@@ -63,6 +64,83 @@ export default function ConsumptionPrediction({ posts = [], onNavigateToRisk }) 
   const ammoDaysLeft = Math.round((currentAmmo / Math.max(1, predictedAmmoBurn)) * 10) / 10;
   const oxygenDaysLeft = Math.round((currentOxygen / Math.max(1, predictedOxygenBurn)) * 10) / 10;
   const minDaysLeft = Math.min(fuelDaysLeft, rationsDaysLeft);
+
+  // Commodity definition map for dynamic 14-day projection
+  const commodityData = {
+    FUEL: {
+      key: 'FUEL',
+      name: 'Kerosene Fuel (SKO)',
+      icon: '⛽',
+      current: currentFuel,
+      burn: predictedFuelBurn,
+      unit: 'L',
+      daysLeft: fuelDaysLeft
+    },
+    RATIONS: {
+      key: 'RATIONS',
+      name: 'MRE Combat Rations',
+      icon: '🍛',
+      current: currentRations,
+      burn: predictedRationsBurn,
+      unit: 'Packs',
+      daysLeft: rationsDaysLeft
+    },
+    BARS: {
+      key: 'BARS',
+      name: 'Energy Bars',
+      icon: '🥮',
+      current: currentBars,
+      burn: predictedBarsBurn,
+      unit: 'Boxes',
+      daysLeft: barsDaysLeft
+    },
+    AMMO: {
+      key: 'AMMO',
+      name: '5.56mm Ammo',
+      icon: '💣',
+      current: currentAmmo,
+      burn: predictedAmmoBurn,
+      unit: 'Rds',
+      daysLeft: ammoDaysLeft
+    },
+    OXYGEN: {
+      key: 'OXYGEN',
+      name: 'Oxygen Cylinders',
+      icon: '🩺',
+      current: currentOxygen,
+      burn: predictedOxygenBurn,
+      unit: 'Units',
+      daysLeft: oxygenDaysLeft
+    }
+  };
+
+  // Find most critical commodity (lowest days left)
+  const criticalCommodityKey = Object.keys(commodityData).reduce((lowestKey, key) => {
+    return commodityData[key].daysLeft < commodityData[lowestKey].daysLeft ? key : lowestKey;
+  }, 'FUEL');
+
+  const activeCommodityKey = forecastCommodity === 'CRITICAL' ? criticalCommodityKey : forecastCommodity;
+  const activeCommodity = commodityData[activeCommodityKey] || commodityData.FUEL;
+
+  // Dynamically compute the 14-Day Trajectory based on real-time simulation parameters
+  const trajectory14Days = Array.from({ length: 14 }, (_, idx) => {
+    const dayIndex = idx + 1; // Day 1 to 14
+    const consumed = (dayIndex - 1) * activeCommodity.burn;
+    const remaining = Math.max(0, activeCommodity.current - consumed);
+    const percent = activeCommodity.current > 0 
+      ? Math.max(0, Math.min(100, Math.round((remaining / activeCommodity.current) * 100))) 
+      : 0;
+
+    return {
+      day: `D${dayIndex}`,
+      dayNum: dayIndex,
+      percent,
+      remaining: Math.round(remaining * 10) / 10,
+      burn: activeCommodity.burn,
+      unit: activeCommodity.unit
+    };
+  });
+
 
   // Helper to format exact calendar stockout date
   const getStockoutDateString = (daysLeft) => {
@@ -357,12 +435,33 @@ export default function ConsumptionPrediction({ posts = [], onNavigateToRisk }) 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem' }}>
 
               {/* Item 1: Fuel */}
-              <div style={{ background: '#F0F2ED', padding: '1rem', borderRadius: '8px', border: `1px solid ${fuelDaysLeft <= 3 ? '#C0392B' : 'var(--border-color)'}`, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+              <div 
+                onClick={() => setForecastCommodity('FUEL')}
+                style={{ 
+                  background: '#F0F2ED', 
+                  padding: '1rem', 
+                  borderRadius: '8px', 
+                  border: activeCommodityKey === 'FUEL' 
+                    ? '2px solid var(--color-olive-green)' 
+                    : fuelDaysLeft <= 3 
+                    ? '1px solid #C0392B' 
+                    : '1px solid var(--border-color)', 
+                  display: 'flex', 
+                  flexDirection: 'column', 
+                  gap: '0.5rem',
+                  cursor: 'pointer',
+                  boxShadow: activeCommodityKey === 'FUEL' ? '0 0 10px rgba(45, 90, 39, 0.25)' : 'none',
+                  transition: 'all 0.2s ease'
+                }}
+              >
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--color-navy)', fontWeight: '700', fontSize: '0.8rem' }}>
                     <Fuel size={16} /> 1. KEROSENE FUEL
                   </div>
-                  {fuelDaysLeft <= 3 && <span className="badge-status critical" style={{ fontSize: '0.6rem' }}>CRITICAL</span>}
+                  <div style={{ display: 'flex', gap: '0.3rem', alignItems: 'center' }}>
+                    {activeCommodityKey === 'FUEL' && <span style={{ fontSize: '0.6rem', color: 'var(--color-olive-green)', fontWeight: '700' }}>● SELECTED</span>}
+                    {fuelDaysLeft <= 3 && <span className="badge-status critical" style={{ fontSize: '0.6rem' }}>CRITICAL</span>}
+                  </div>
                 </div>
                 <div>
                   <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>PREDICTED DAILY BURN</div>
@@ -383,12 +482,33 @@ export default function ConsumptionPrediction({ posts = [], onNavigateToRisk }) 
               </div>
 
               {/* Item 2: MRE Rations */}
-              <div style={{ background: '#F0F2ED', padding: '1rem', borderRadius: '8px', border: `1px solid ${rationsDaysLeft <= 3 ? '#C0392B' : 'var(--border-color)'}`, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+              <div 
+                onClick={() => setForecastCommodity('RATIONS')}
+                style={{ 
+                  background: '#F0F2ED', 
+                  padding: '1rem', 
+                  borderRadius: '8px', 
+                  border: activeCommodityKey === 'RATIONS' 
+                    ? '2px solid var(--color-olive-green)' 
+                    : rationsDaysLeft <= 3 
+                    ? '1px solid #C0392B' 
+                    : '1px solid var(--border-color)', 
+                  display: 'flex', 
+                  flexDirection: 'column', 
+                  gap: '0.5rem',
+                  cursor: 'pointer',
+                  boxShadow: activeCommodityKey === 'RATIONS' ? '0 0 10px rgba(45, 90, 39, 0.25)' : 'none',
+                  transition: 'all 0.2s ease'
+                }}
+              >
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--color-army-green)', fontWeight: '700', fontSize: '0.8rem' }}>
                     <Package size={16} /> 2. MRE COMBAT RATIONS
                   </div>
-                  {rationsDaysLeft <= 3 && <span className="badge-status critical" style={{ fontSize: '0.6rem' }}>CRITICAL</span>}
+                  <div style={{ display: 'flex', gap: '0.3rem', alignItems: 'center' }}>
+                    {activeCommodityKey === 'RATIONS' && <span style={{ fontSize: '0.6rem', color: 'var(--color-olive-green)', fontWeight: '700' }}>● SELECTED</span>}
+                    {rationsDaysLeft <= 3 && <span className="badge-status critical" style={{ fontSize: '0.6rem' }}>CRITICAL</span>}
+                  </div>
                 </div>
                 <div>
                   <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>PREDICTED DAILY BURN</div>
@@ -409,9 +529,28 @@ export default function ConsumptionPrediction({ posts = [], onNavigateToRisk }) 
               </div>
 
               {/* Item 3: Energy Bars */}
-              <div style={{ background: '#F0F2ED', padding: '1rem', borderRadius: '8px', border: '1px solid var(--border-color)', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: '#b45309', fontWeight: '700', fontSize: '0.8rem' }}>
-                  <PackageCheck size={16} /> 3. ENERGY BARS
+              <div 
+                onClick={() => setForecastCommodity('BARS')}
+                style={{ 
+                  background: '#F0F2ED', 
+                  padding: '1rem', 
+                  borderRadius: '8px', 
+                  border: activeCommodityKey === 'BARS' 
+                    ? '2px solid var(--color-olive-green)' 
+                    : '1px solid var(--border-color)', 
+                  display: 'flex', 
+                  flexDirection: 'column', 
+                  gap: '0.5rem',
+                  cursor: 'pointer',
+                  boxShadow: activeCommodityKey === 'BARS' ? '0 0 10px rgba(45, 90, 39, 0.25)' : 'none',
+                  transition: 'all 0.2s ease'
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: '#b45309', fontWeight: '700', fontSize: '0.8rem' }}>
+                    <PackageCheck size={16} /> 3. ENERGY BARS
+                  </div>
+                  {activeCommodityKey === 'BARS' && <span style={{ fontSize: '0.6rem', color: 'var(--color-olive-green)', fontWeight: '700' }}>● SELECTED</span>}
                 </div>
                 <div>
                   <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>PREDICTED DAILY BURN</div>
@@ -432,9 +571,28 @@ export default function ConsumptionPrediction({ posts = [], onNavigateToRisk }) 
               </div>
 
               {/* Item 4: Ammunition */}
-              <div style={{ background: '#F0F2ED', padding: '1rem', borderRadius: '8px', border: '1px solid var(--border-color)', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: '#B83A3A', fontWeight: '700', fontSize: '0.8rem' }}>
-                  <Disc size={16} /> 4. 5.56MM AMMUNITION
+              <div 
+                onClick={() => setForecastCommodity('AMMO')}
+                style={{ 
+                  background: '#F0F2ED', 
+                  padding: '1rem', 
+                  borderRadius: '8px', 
+                  border: activeCommodityKey === 'AMMO' 
+                    ? '2px solid var(--color-olive-green)' 
+                    : '1px solid var(--border-color)', 
+                  display: 'flex', 
+                  flexDirection: 'column', 
+                  gap: '0.5rem',
+                  cursor: 'pointer',
+                  boxShadow: activeCommodityKey === 'AMMO' ? '0 0 10px rgba(45, 90, 39, 0.25)' : 'none',
+                  transition: 'all 0.2s ease'
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: '#B83A3A', fontWeight: '700', fontSize: '0.8rem' }}>
+                    <Disc size={16} /> 4. 5.56MM AMMUNITION
+                  </div>
+                  {activeCommodityKey === 'AMMO' && <span style={{ fontSize: '0.6rem', color: 'var(--color-olive-green)', fontWeight: '700' }}>● SELECTED</span>}
                 </div>
                 <div>
                   <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>PREDICTED DAILY BURN</div>
@@ -455,9 +613,33 @@ export default function ConsumptionPrediction({ posts = [], onNavigateToRisk }) 
               </div>
 
               {/* Item 5: Oxygen Cylinders */}
-              <div style={{ background: '#F0F2ED', padding: '1rem', borderRadius: '8px', border: '1px solid var(--border-color)', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: '#15803d', fontWeight: '700', fontSize: '0.8rem' }}>
-                  <Plus size={16} /> 5. OXYGEN CYLINDERS
+              <div 
+                onClick={() => setForecastCommodity('OXYGEN')}
+                style={{ 
+                  background: '#F0F2ED', 
+                  padding: '1rem', 
+                  borderRadius: '8px', 
+                  border: activeCommodityKey === 'OXYGEN' 
+                    ? '2px solid var(--color-olive-green)' 
+                    : oxygenDaysLeft <= 3 
+                    ? '1px solid #C0392B' 
+                    : '1px solid var(--border-color)', 
+                  display: 'flex', 
+                  flexDirection: 'column', 
+                  gap: '0.5rem',
+                  cursor: 'pointer',
+                  boxShadow: activeCommodityKey === 'OXYGEN' ? '0 0 10px rgba(45, 90, 39, 0.25)' : 'none',
+                  transition: 'all 0.2s ease'
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: '#15803d', fontWeight: '700', fontSize: '0.8rem' }}>
+                    <Plus size={16} /> 5. OXYGEN CYLINDERS
+                  </div>
+                  <div style={{ display: 'flex', gap: '0.3rem', alignItems: 'center' }}>
+                    {activeCommodityKey === 'OXYGEN' && <span style={{ fontSize: '0.6rem', color: 'var(--color-olive-green)', fontWeight: '700' }}>● SELECTED</span>}
+                    {oxygenDaysLeft <= 3 && <span className="badge-status critical" style={{ fontSize: '0.6rem' }}>CRITICAL</span>}
+                  </div>
                 </div>
                 <div>
                   <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>PREDICTED DAILY BURN</div>
@@ -478,19 +660,146 @@ export default function ConsumptionPrediction({ posts = [], onNavigateToRisk }) 
               </div>
             </div>
 
-            {/* Visual 14-Day Trajectory Chart Simulation */}
-            <div style={{ background: '#FFFFFF', padding: '1rem', borderRadius: '8px', border: '1px solid var(--border-color)', marginTop: '0.5rem' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>
-                <span style={{ fontWeight: '700', color: '#1B2026' }}>📈 14-DAY FORECAST TRAJECTORY ({post.name})</span>
-                <span style={{ color: 'var(--color-olive-green)', fontFamily: 'var(--font-mono)' }}>🟢 Predicted Consumption Trajectory</span>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'flex-end', height: '90px', gap: '8px', paddingTop: '10px' }}>
-                {[100, 92, 84, 76, 68, 55, 43, 31, 20, 12, 5, 2, 0, 0].map((val, idx) => (
-                  <div key={idx} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', height: '100%', justifyContent: 'flex-end' }}>
-                    <div style={{ width: '100%', height: `${val}%`, background: val < 20 ? '#C0392B' : 'var(--color-olive-green)', borderRadius: '2px 2px 0 0', opacity: 0.85 }} />
-                    <span style={{ fontSize: '0.55rem', color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)', marginTop: '4px' }}>D{idx + 1}</span>
+            {/* Visual 14-Day Trajectory Chart Simulation (Dynamic & Reactive to What-If Controls) */}
+            <div style={{ background: '#FFFFFF', padding: '1.25rem', borderRadius: '8px', border: '1px solid var(--border-color)', marginTop: '0.5rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem', marginBottom: '0.75rem' }}>
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+                    <span style={{ fontWeight: '700', fontSize: '0.9rem', color: '#1B2026' }}>
+                      📈 14-DAY FORECAST TRAJECTORY ({post.name})
+                    </span>
+                    <span style={{ 
+                      fontSize: '0.7rem', 
+                      padding: '0.2rem 0.5rem', 
+                      borderRadius: '4px',
+                      fontWeight: '700',
+                      background: activeCommodity.daysLeft <= 3 ? '#FFE5E5' : '#E8F5E9',
+                      color: activeCommodity.daysLeft <= 3 ? '#C0392B' : '#2D5A27',
+                      border: `1px solid ${activeCommodity.daysLeft <= 3 ? '#C0392B' : '#2D5A27'}`
+                    }}>
+                      {activeCommodity.icon} Tracking: {activeCommodity.name} ({activeCommodity.daysLeft <= 14 ? `Depletes D${Math.max(1, Math.ceil(activeCommodity.daysLeft))}` : 'Buffer > 14 Days'})
+                    </span>
                   </div>
-                ))}
+                  <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', marginTop: '0.25rem' }}>
+                    Live Simulated Burn: <strong style={{ color: '#1B2026' }}>{activeCommodity.burn} {activeCommodity.unit}/day</strong> | Current Buffer: <strong style={{ color: '#1B2026' }}>{activeCommodity.current} {activeCommodity.unit}</strong> | Stockout in: <strong style={{ color: activeCommodity.daysLeft <= 3 ? '#C0392B' : '#2D5A27' }}>{formatStockoutTime(activeCommodity.daysLeft)}</strong>
+                  </div>
+                </div>
+
+                {/* Filter Pills for All 5 Commodities + Auto Critical */}
+                <div style={{ display: 'flex', gap: '0.35rem', flexWrap: 'wrap' }}>
+                  {[
+                    { key: 'CRITICAL', label: '🚨 Most Critical' },
+                    { key: 'FUEL', label: '⛽ Fuel' },
+                    { key: 'RATIONS', label: '🍛 Rations' },
+                    { key: 'OXYGEN', label: '🩺 Oxygen' },
+                    { key: 'AMMO', label: '💣 Ammo' },
+                    { key: 'BARS', label: '🥮 Bars' }
+                  ].map(tab => {
+                    const isSelected = forecastCommodity === tab.key;
+                    return (
+                      <button
+                        key={tab.key}
+                        onClick={() => setForecastCommodity(tab.key)}
+                        style={{
+                          padding: '0.3rem 0.6rem',
+                          fontSize: '0.7rem',
+                          fontWeight: '700',
+                          borderRadius: '4px',
+                          border: '1px solid',
+                          borderColor: isSelected ? 'var(--color-olive-green)' : 'var(--border-color)',
+                          background: isSelected ? 'var(--color-olive-green)' : '#F0F2ED',
+                          color: isSelected ? '#FFFFFF' : '#1B2026',
+                          cursor: 'pointer',
+                          transition: 'all 0.15s ease'
+                        }}
+                      >
+                        {tab.label}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Dynamic Bar Chart with Real-Time Heights & Colors */}
+              <div style={{ display: 'flex', alignItems: 'flex-end', height: '110px', gap: '8px', paddingTop: '15px' }}>
+                {trajectory14Days.map((val, idx) => {
+                  const barColor = val.percent === 0 
+                    ? '#7F1D1D' 
+                    : val.percent <= 20 
+                    ? '#C0392B' 
+                    : val.percent <= 40 
+                    ? '#D97706' 
+                    : 'var(--color-olive-green)';
+
+                  return (
+                    <div 
+                      key={idx} 
+                      title={`${val.day}: ${val.percent}% buffer remaining (${val.remaining} ${val.unit} left)`}
+                      style={{ 
+                        flex: 1, 
+                        display: 'flex', 
+                        flexDirection: 'column', 
+                        alignItems: 'center', 
+                        height: '100%', 
+                        justifyContent: 'flex-end',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      {/* Percent label above bar */}
+                      <span style={{ 
+                        fontSize: '0.6rem', 
+                        fontWeight: '700', 
+                        fontFamily: 'var(--font-mono)', 
+                        color: val.percent <= 20 ? '#C0392B' : 'var(--text-secondary)',
+                        marginBottom: '4px' 
+                      }}>
+                        {val.percent}%
+                      </span>
+                      
+                      {/* Animated Height Bar */}
+                      <div 
+                        style={{ 
+                          width: '100%', 
+                          height: `${Math.max(4, val.percent)}%`, 
+                          background: barColor, 
+                          borderRadius: '3px 3px 0 0', 
+                          opacity: val.percent === 0 ? 0.35 : 0.9,
+                          transition: 'height 0.3s ease, background 0.3s ease',
+                          boxShadow: val.percent > 0 && val.percent <= 20 ? '0 0 6px rgba(192, 57, 43, 0.4)' : 'none'
+                        }} 
+                      />
+                      
+                      {/* Day Label */}
+                      <span style={{ 
+                        fontSize: '0.6rem', 
+                        color: val.percent <= 20 ? '#C0392B' : 'var(--text-secondary)', 
+                        fontFamily: 'var(--font-mono)', 
+                        fontWeight: val.percent <= 20 ? '700' : '500',
+                        marginTop: '5px' 
+                      }}>
+                        {val.day}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Chart Legend */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '0.75rem', paddingTop: '0.5rem', borderTop: '1px solid #ECECEC', fontSize: '0.7rem', color: 'var(--text-muted)', flexWrap: 'wrap', gap: '0.5rem' }}>
+                <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
+                  <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                    <span style={{ width: '8px', height: '8px', background: 'var(--color-olive-green)', borderRadius: '2px', display: 'inline-block' }} /> Healthy Buffer (&gt;40%)
+                  </span>
+                  <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                    <span style={{ width: '8px', height: '8px', background: '#D97706', borderRadius: '2px', display: 'inline-block' }} /> Warning (20-40%)
+                  </span>
+                  <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                    <span style={{ width: '8px', height: '8px', background: '#C0392B', borderRadius: '2px', display: 'inline-block' }} /> Critical / Depleted (&le;20%)
+                  </span>
+                </div>
+                <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.65rem', color: 'var(--color-olive-green)', fontWeight: '700' }}>
+                  ⚡ Live Reactive to What-If Sliders
+                </span>
               </div>
             </div>
           </div>
